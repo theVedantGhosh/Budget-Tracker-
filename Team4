@@ -1,0 +1,362 @@
+/*
+    PERSONAL EXPENSE TRACKER
+    Version 1: Without File Handling
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <conio.h>
+
+int main()
+{
+    int budget;
+    int food = 0, travel = 0, books = 0;
+    int entertainment = 0, miscellaneous = 0;
+    int total, remaining;
+    int expenses[5];
+    int maxExpense, maxCategory = 0;
+    int choice = 1;
+    int key;
+    int selectedOption;
+    int amount;
+    int transactionAmount[100];
+    int transactionCategory[100];
+    int transactionCount = 0;
+    const char *options[] = {
+        "Add Food Expense",
+        "Add Travel Expense",
+        "Add Entertainment Expense",
+        "Add Books Expense",
+        "Add Miscellaneous Expense",
+        "View Expense History",
+        "Undo Last Expense",
+        "Finish and View Report"
+    };
+    const char *categoryNames[] = {
+        "Food",
+        "Travel",
+        "Entertainment",
+        "Books",
+        "Miscellaneous"
+    };
+    //bugett input
+    printf("==================================================\n");
+    printf("             PERSONAL EXPENSE TRACKER             \n");
+    printf("==================================================\n");
+    do
+    {
+        printf("\nEnter your monthly budget (Rs.): ");
+        scanf("%d", &budget);
+        if (budget <= 0)
+        {printf("Invalid budget! Please enter a positive amount.\n");}
+    } while (budget <= 0);
+    //menu bar
+    while (1)
+    {while (1)
+        {system("cls");
+            int spentSoFar=food+travel+entertainment+books+miscellaneous;
+            float budgetUsed=((float)spentSoFar/budget)*100;
+            printf("==================================================\n");
+            printf("             PERSONAL EXPENSE TRACKER             \n");
+            printf("==================================================\n");
+            printf("Monthly Budget : Rs. %d\n", budget);
+            printf("Spent So Far   : Rs. %d\n", spentSoFar);
+            printf("Remaining      : Rs. %d\n", budget - spentSoFar);
+            printf("Budget Used    : %.1f%%\n", budgetUsed);
+            //bug warning
+            if (spentSoFar > budget)
+            {printf("\nWARNING: YOUR BUDGET HAS BEEN EXCEEDED!\n");
+            }
+            else if (budgetUsed >= 80)
+            {printf("\nWARNING: MORE THAN 80%% OF BUDGET HAS BEEN USED!\n");
+            }
+			printf("--------------------------------------------------\n");
+            printf("Use UP/DOWN arrow keys and ENTER to select:\n");
+            printf("--------------------------------------------------\n\n");
+            for (int i = 0; i < 8; i++)
+            {if (choice == i + 1)
+                    printf("   >> %-35s <<\n", options[i]);
+                else
+                    printf("      %-35s\n", options[i]);
+            }
+            //get key
+            key = _getch();
+            if (key == 224 || key == 0)
+            {
+                key = _getch();
+                if (key == 72)       /* UP */
+                {choice--;
+                    if (choice < 1)
+                        choice = 8;
+                }
+                else if (key == 80)  /* DOWN */
+                {choice++;
+                    if (choice > 8)
+                        choice = 1;
+                }
+            }
+            else if (key == 13)      /* ENTER */
+            {selectedOption = choice;
+                break;
+            }
+        }
+
+
+        //add expence
+
+        if (selectedOption >= 1 && selectedOption <= 5)
+        {
+            printf("\nEnter amount spent on %s (Rs.): ",
+                   categoryNames[selectedOption - 1]);
+            scanf("%d", &amount);
+            //input validation
+            if (amount <= 0){
+                printf("\nInvalid amount! Expense must be positive.");
+                printf("\nPress any key to continue...");
+                _getch();
+                continue;
+            }
+            //limits
+            if (transactionCount >= 100)
+            {
+                printf("\nTransaction limit reached!");
+                printf("\nPress any key to continue...");
+                _getch();
+                continue;
+            }
+            //add type
+            if (selectedOption == 1)
+                food += amount;
+            else if (selectedOption == 2)
+                travel += amount;
+            else if (selectedOption == 3)
+                entertainment += amount;
+
+            else if (selectedOption == 4)
+                books += amount;
+
+            else if (selectedOption == 5)
+                miscellaneous += amount;
+
+
+            /* STORE TRANSACTION */
+
+            transactionAmount[transactionCount] = amount;
+
+            transactionCategory[transactionCount] =
+                selectedOption - 1;
+
+            transactionCount++;
+
+
+            printf("\nExpense added successfully!");
+            printf("\nPress any key to continue...");
+            _getch();
+        }
+
+
+        /* ================= VIEW HISTORY ================= */
+
+        else if (selectedOption == 6)
+        {
+            system("cls");
+
+            printf("==================================================\n");
+            printf("                 EXPENSE HISTORY                  \n");
+            printf("==================================================\n");
+
+            if (transactionCount == 0)
+            {
+                printf("\nNo transactions recorded yet.\n");
+            }
+
+            else
+            {
+                printf("\n%-5s %-20s %15s\n",
+                       "No.", "Category", "Amount (Rs.)");
+
+                printf("---------------------------------------------\n");
+
+                for (int i = 0; i < transactionCount; i++)
+                {
+                    printf("%-5d %-20s %15d\n",
+                           i + 1,
+                           categoryNames[transactionCategory[i]],
+                           transactionAmount[i]);
+                }
+
+                printf("---------------------------------------------\n");
+                printf("Total Transactions: %d\n", transactionCount);
+            }
+
+            printf("\nPress any key to return...");
+            _getch();
+        }
+        // undo
+        else if (selectedOption == 7)
+        {
+            if (transactionCount == 0)
+            {
+                printf("\nNo transaction available to undo.");
+            }
+            else
+            {
+                int last = transactionCount - 1;
+                int lastAmount =
+                    transactionAmount[last];
+                int lastCategory =
+                    transactionCategory[last];
+                if (lastCategory == 0)
+                    food -= lastAmount;
+                else if (lastCategory == 1)
+                    travel -= lastAmount;
+                else if (lastCategory == 2)
+                    entertainment -= lastAmount;
+                else if (lastCategory == 3)
+                    books -= lastAmount;
+                else if (lastCategory == 4)
+                    miscellaneous -= lastAmount;
+                transactionCount--;
+                printf("\nLast transaction successfully removed.");
+                printf("\nRemoved: %s - Rs. %d",
+                       categoryNames[lastCategory],
+                       lastAmount);
+            }
+            printf("\nPress any key to continue...");
+            _getch();
+        }
+        //final
+        else if (selectedOption == 8)
+        { break;
+        }
+    }
+    //calculations
+    expenses[0] = food;
+    expenses[1] = travel;
+    expenses[2] = entertainment;
+    expenses[3] = books;
+    expenses[4] = miscellaneous;
+    total = food + travel + entertainment +
+            books + miscellaneous;
+    remaining = budget - total;
+    maxExpense = expenses[0];
+    for (int i = 1; i < 5; i++){
+    if (expenses[i] > maxExpense)
+	   {maxExpense = expenses[i];
+        maxCategory = i;
+       }
+    }
+    system("cls");
+    //final report
+    printf("==================================================\n");
+    printf("               FINAL EXPENSE REPORT               \n");
+    printf("==================================================\n");
+    printf("Monthly Budget      : Rs. %d\n", budget);
+    printf("Total Expenditure   : Rs. %d\n", total);
+    printf("Total Transactions  : %d\n", transactionCount);
+    if (remaining >= 0)
+        printf("Remaining Balance   : Rs. %d\n", remaining);
+    else
+        printf("Amount Over Budget  : Rs. %d\n", -remaining);
+    printf("\n==================================================\n");
+    printf("             CATEGORY-WISE ANALYSIS               \n");
+    printf("==================================================\n");
+    printf("\n%-20s %12s %12s\n",
+           "Category", "Amount", "Percentage");
+    printf("--------------------------------------------------\n");
+    if (total > 0)
+    { printf("%-20s %12d %11.1f%%\n",
+               "Food", food,
+               ((float)food / total) * 100);
+        printf("%-20s %12d %11.1f%%\n",
+               "Travel", travel,
+               ((float)travel / total) * 100);
+        printf("%-20s %12d %11.1f%%\n",
+               "Entertainment", entertainment,
+               ((float)entertainment / total) * 100);
+        printf("%-20s %12d %11.1f%%\n",
+               "Books", books,
+               ((float)books / total) * 100);
+        printf("%-20s %12d %11.1f%%\n",
+               "Miscellaneous", miscellaneous,
+               ((float)miscellaneous / total) * 100);
+    }
+    else
+    {printf("No expenses were recorded.\n");
+    }
+    printf("--------------------------------------------------\n");
+    printf("%-20s %12d\n", "Total", total);
+    if (total > 0)
+    {printf("\nHighest Spending Category : %s\n",
+               categoryNames[maxCategory]);
+        printf("Highest Category Expense  : Rs. %d\n",
+               maxExpense);
+    }
+    // saving
+    printf("\n==================================================\n");
+    printf("                  BUDGET STATUS                   \n");
+    printf("==================================================\n");
+    if (remaining < 0)
+    {printf("Status: BUDGET EXCEEDED\n");
+        printf("You exceeded your budget by Rs. %d.\n",
+               -remaining);
+
+        printf("Consider reducing unnecessary expenses next month.\n");
+    }
+    else if (remaining == 0)
+    {
+        printf("Status: ENTIRE BUDGET UTILIZED\n");
+        printf("No balance remains for this month.\n");
+    }
+    else{
+        float savingPercentage =
+            ((float)remaining / budget) * 100;
+        printf("Status: WITHIN BUDGET\n");
+        printf("Amount Saved       : Rs. %d\n", remaining);
+        printf("Savings Percentage : %.1f%%\n",savingPercentage);
+	    printf("Consider saving the remaining amount.\n");
+    }
+    printf("\n==================================================\n");
+    printf("       Thank you for using Expense Tracker!       \n");
+    printf("==================================================\n");
+    return 0;
+}
+//OUTPUT
+/*
+==================================================
+               FINAL EXPENSE REPORT
+==================================================
+Monthly Budget      : Rs. 1000
+Total Expenditure   : Rs. 440
+Total Transactions  : 4
+Remaining Balance   : Rs. 560
+
+==================================================
+             CATEGORY-WISE ANALYSIS
+==================================================
+
+Category                   Amount   Percentage
+--------------------------------------------------
+Food                           20         4.5%
+Travel                        200        45.5%
+Entertainment                  20         4.5%
+Books                           0         0.0%
+Miscellaneous                 200        45.5%
+--------------------------------------------------
+Total                         440
+
+Highest Spending Category : Travel
+Highest Category Expense  : Rs. 200
+
+==================================================
+                  BUDGET STATUS
+==================================================
+Status: WITHIN BUDGET
+Amount Saved       : Rs. 560
+Savings Percentage : 56.0%
+Consider saving the remaining amount.
+
+==================================================
+       Thank you for using Expense Tracker!
+==================================================
+*/
